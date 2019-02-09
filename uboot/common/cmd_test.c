@@ -147,13 +147,13 @@ int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_ledon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	all_led_on();
+	//all_led_on();
 	return 0;
 }
 
 int do_ledff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	all_led_off();
+	//all_led_off();
 	return 0;
 }
 

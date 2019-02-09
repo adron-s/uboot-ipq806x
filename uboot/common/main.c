@@ -705,7 +705,7 @@ void main_loop (void)
 
 	if ( counter > 20 ) {
 #ifdef CONFIG_RESET_DEFAULT_ENV
-		all_led_on();
+		//all_led_on();
 		udelay( 1000000 );
 
 		char cmd[16];
@@ -725,7 +725,7 @@ void main_loop (void)
 	}
 #endif
 /********************************************************************************************/
-	uboot_env_restore();
+	//uboot_env_restore();
 
 	if (bootdelay >= 0 && s && !abortboot (bootdelay)) {
 #ifdef CONFIG_GL_CHECK_ART

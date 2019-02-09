@@ -260,7 +260,6 @@ LIBS += drivers/bios_emulator/libatibiosemu.o
 LIBS += drivers/block/libblock.o
 LIBS += drivers/dma/libdma.o
 LIBS += drivers/fpga/libfpga.o
-LIBS += httpd/libhttpd.o
 LIBS += drivers/gpio/libgpio.o
 LIBS += drivers/hwmon/libhwmon.o
 LIBS += drivers/i2c/libi2c.o
@@ -501,6 +500,7 @@ endif
 $(obj)u-boot:	depend \
 		$(SUBDIR_TOOLS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		@echo -e "$(CYN)Linking$(GRN) $@...$(NRM)"
+#		@echo "Owl is HERE!!! $(GEN_UBOOT)!!!"
 		$(silent)$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,u-boot) | \

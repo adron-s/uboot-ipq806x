@@ -39,7 +39,6 @@ COBJS-$(CONFIG_CMD_PING) += ping.o
 COBJS-$(CONFIG_CMD_RARP) += rarp.o
 COBJS-$(CONFIG_CMD_SNTP) += sntp.o
 COBJS-$(CONFIG_CMD_NET)  += tftp.o
-COBJS-$(CONFIG_CMD_NET)  += httpd.o
 
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)

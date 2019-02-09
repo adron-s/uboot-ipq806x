@@ -40,7 +40,7 @@
 #define CONFIG_SYS_CACHELINE_SIZE   64
 #define CONFIG_IPQ806X_ENV
 
-#define CONFIG_IPQ806X_USB
+#undef CONFIG_IPQ806X_USB
 #ifdef CONFIG_IPQ806X_USB
 #define CONFIG_USB_XHCI
 #define CONFIG_CMD_USB
@@ -236,13 +236,13 @@ typedef struct {
  * SPI Flash Configs
  */
 
-#define CONFIG_IPQ_SPI
-#define CONFIG_SPI_FLASH
-#define CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_SPANSION
-#define CONFIG_SPI_FLASH_MACRONIX
-#define CONFIG_SPI_FLASH_WINBOND
+#undef CONFIG_IPQ_SPI
+#undef CONFIG_SPI_FLASH
+#undef CONFIG_CMD_SF
+#undef CONFIG_SPI_FLASH_STMICRO
+#undef CONFIG_SPI_FLASH_SPANSION
+#undef CONFIG_SPI_FLASH_MACRONIX
+#undef CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_SYS_HZ                   1000
 
 #define CONFIG_SF_DEFAULT_BUS 0
@@ -347,6 +347,39 @@ typedef struct {
 /* Enabling this flag will report any L2 errors.
  * By default we are disabling it */
 /*#define CONFIG_IPQ_REPORT_L2ERR*/
+
+#define CONFIG_UBOOT_START 			0xf0000
+#define CONFIG_UBOOT_SIZE 			0x80000
+#define CONFIG_ART_START 			0x170000
+#define CONFIG_ART_SIZE 			0x10000
+#define CONFIG_FIRMWARE_START		0x180000
+#define CONFIG_FIRMWARE_SIZE		0x1E80000
+
+//??????????!!!!!!!!!!!!!!
+#define CONFIG_LOADADDR 0x44000000
+#define CONFIG_UBOOT_NAME "openwrt-ipq40xx-u-boot-stripped.elf"
+#define CONFIG_FIRMWARE "firmware.bin"
+#define CONFIG_BOOTSTOPKEY	"gl"
+#define CONFIG_VERSION	"20180419"
+
+//#define CONFIG_DEBUG
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"version="CONFIG_VERSION"\0" \
+	"loadaddr="MK_STR(CONFIG_LOADADDR)"\0" \
+	"uboot_name="CONFIG_UBOOT_NAME"\0" \
+	"fw_name="CONFIG_FIRMWARE"\0" \
+	"lu=if ping $serverip; then tftpboot $loadaddr $uboot_name && sf probe && sf erase "MK_STR(CONFIG_UBOOT_START)" "MK_STR(CONFIG_UBOOT_SIZE)" && sf write $loadaddr "MK_STR(CONFIG_UBOOT_START)" $filesize; fi\0" \
+	"lf=if ping $serverip; then " \
+	    "tftpboot $loadaddr $fw_name && " \
+		    "if checkfw; then " \
+		         "burning_qsdk; " \
+		     "else " \
+		         "burning_lede; " \
+		     "fi; " \
+    "fi\0" \
+	"lc=if ping $serverip; then tftpboot $loadaddr config.bin && updateconfig; fi\0"
+
 
 #endif /* _IPQCDP_H */
 

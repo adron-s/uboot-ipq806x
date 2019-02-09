@@ -1,6 +1,9 @@
 export BUILD_TOPDIR=$(PWD)
-export STAGING_DIR=/home/lancer/workspace/openwrt/ipq40xx/std/qsdk5/staging_dir
-export TOOLPATH=$(STAGING_DIR)/toolchain-arm_cortex-a7_gcc-4.8-linaro_uClibc-1.0.14_eabi/
+#export STAGING_DIR=/home/lancer/workspace/openwrt/ipq40xx/std/qsdk5/staging_dir
+#export STAGING_DIR=/home/prog/openwrt/lede-all/2019-openwrt-all/openwrt-sdk-ipq806x/staging_dir
+export STAGING_DIR=/home/prog/openwrt/lede-all/2019-openwrt-all/openwrt/staging_dir
+#export TOOLPATH=$(STAGING_DIR)/toolchain-arm_cortex-a7_gcc-4.8-linaro_uClibc-1.0.14_eabi/
+export TOOLPATH=$(STAGING_DIR)/toolchain-arm_cortex-a15+neon-vfpv4_gcc-7.4.0_musl_eabi/
 export PATH:=$(TOOLPATH)/bin:${PATH}
 export MAKECMD=make --silent ARCH=arm CROSS_COMPILE=arm-openwrt-linux-
 
@@ -10,16 +13,16 @@ export CONFIG_BOOTDELAY=1
 
 # uncomment following line, to disable output in U-Boot console
 #export DISABLE_CONSOLE_OUTPUT=1
-all: ipq40xx
+all: ipq806x
 
-ipq40xx:	export UBOOT_FILE_NAME=uboot-ipq40xx
-ipq40xx:	export MAX_UBOOT_SIZE=512
-ipq40xx:
+ipq806x:	export UBOOT_FILE_NAME=uboot-ipq806x
+ipq806x:	export MAX_UBOOT_SIZE=512
+ipq806x:
 	@mkdir -p $(BUILD_TOPDIR)/bin
-	@cd $(BUILD_TOPDIR)/uboot/ && $(MAKECMD) ipq40xx_cdp_config
+	@cd $(BUILD_TOPDIR)/uboot/ && $(MAKECMD) ipq806x_cdp_config
 	@cd $(BUILD_TOPDIR)/uboot/ && $(MAKECMD) ENDIANNESS=-EB V=1 all
 	@cp $(BUILD_TOPDIR)/uboot/u-boot.bin $(BUILD_TOPDIR)/bin/temp.bin
-	@cp $(BUILD_TOPDIR)/uboot/u-boot $(BUILD_TOPDIR)/bin/openwrt-ipq40xx-u-boot-stripped.elf
+	@cp $(BUILD_TOPDIR)/uboot/u-boot $(BUILD_TOPDIR)/bin/openwrt-ipq806x-u-boot-stripped.elf
 	#@make show_size
 	@make stripped
 	
@@ -40,7 +43,7 @@ show_size:
     fi;
 
 stripped:
-	@`$(STAGING_DIR)/host/bin/sstrip $(BUILD_TOPDIR)/bin/openwrt-ipq40xx-u-boot-stripped.elf`
+	@`$(STAGING_DIR)/host/bin/sstrip $(BUILD_TOPDIR)/bin/openwrt-ipq806x-u-boot-stripped.elf`
 	
 clean:
 	@cd $(BUILD_TOPDIR)/uboot/ && $(MAKECMD) distclean

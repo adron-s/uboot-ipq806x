@@ -138,7 +138,6 @@ static int display_banner(void)
 	debug("IRQ Stack: %08lx\n", IRQ_STACK_START);
 	debug("FIQ Stack: %08lx\n", FIQ_STACK_START);
 #endif
-
 	return (0);
 }
 
@@ -227,6 +226,18 @@ void __dram_init_banksize(void)
 void dram_init_banksize(void)
 	__attribute__((weak, alias("__dram_init_banksize")));
 
+
+unsigned int OWL_X1(void);
+unsigned int OWL_X2(void);
+//unsigned int OWL_X3(ulong);
+unsigned int OWL_X4(ulong, gd_t *, ulong);
+//unsigned int OWL_X4(void);
+unsigned int OWL_X10(void);
+unsigned int OWL_X11(void);
+unsigned int OWL_X12(void);
+unsigned int OWL_X13(ulong);
+unsigned int OWL_X14(ulong);
+
 int __arch_cpu_init(void)
 {
 	return 0;
@@ -264,6 +275,29 @@ init_fnc_t *init_sequence[] = {
 	dram_init,		/* configure available RAM banks */
 	NULL,
 };
+
+
+
+void owl_test_mem(void){
+	if(1){
+		unsigned char *p1 = 0x41200000;
+		unsigned char *p2 = 0x7ff9e000;
+		int a;
+		int b = 0;
+		for(a = 0; a < 0x4e8a8; a++){
+			if((*p1) != (*p2)){
+				printf("Mismatch detected at 0x%x. %x != %x\n", a, (*p1) & 0xFF, (*p2) & 0xFF);
+				if(b > 20)
+					break;
+				b++;
+			}
+			p1++; p2++;
+		}
+		if(b == 0){
+			printf("Memory is equal\n");
+		}
+	}
+}
 
 void board_init_f(ulong bootflag)
 {
@@ -332,6 +366,8 @@ void board_init_f(ulong bootflag)
 	addr= _TEXT_BASE;
 #else
 	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
+	/* printf("OWL: CONFIG_SYS_SDRAM_BASE = %d, gd->ram_size = %d\n",
+		CONFIG_SYS_SDRAM_BASE, gd->ram_size); */
 #endif
 
 #ifdef CONFIG_IPQ_APPSBL_DLOAD
@@ -447,6 +483,7 @@ void board_init_f(ulong bootflag)
 	/* Ram ist board specific, so move it to board code ... */
 	dram_init_banksize();
 	display_dram_config();	/* and display it */
+	//printf("OWL X5-0\n");
 
 #ifdef CONFIG_IPQ40XX_XIP
 	gd->malloc_end = addr;
@@ -460,14 +497,37 @@ void board_init_f(ulong bootflag)
 #endif
 
 	debug("relocation Offset is: %08lx\n", gd->reloc_off);
+	//printf("OWL X5-1\n");
 	memcpy(id, (void *)gd, sizeof(gd_t));
+	//printf("OWL X5-2, addr_sp = 0x%x, addr = 0x%x, _TEXT_BASE = 0x%x\n", addr_sp, addr, _TEXT_BASE);
+	/* printf("OWL _start = 0x%x\n", OWL_X2());
+	printf("OWL _image_copy_end_ofs = 0x%x\n", OWL_X1());
+	printf("OWL _bss_start_ofs = 0x%x\n", OWL_X13(addr));
+	printf("OWL _bss_end_ofs = 0x%x\n", OWL_X14(addr));
+	printf("OWL _dynsym_start_ofs = 0x%x\n", OWL_X10());
+	printf("OWL _rel_dyn_start_ofs = 0x%x\n", OWL_X11());
+	printf("OWL _rel_dyn_end_ofs = 0x%x\n", OWL_X12()); */
 
 #ifdef CONFIG_IPQ40XX_XIP
 	relocate_code(addr_sp, id, _TEXT_BASE);
 #else
+	//printf("OWL X5-2-1\n");
+	//OWL_X3(addr_sp, id, addr);
+	//printf("OWL X5-2-2\n");
+	//memcpy(0x7ff9e000, 0x41200000, 0x4e8a8);
+	//printf("relocate_code ret = 0x%x\n", relocate_code(addr_sp, id, addr));
+	//printf("OWL_X4 ret = 0x%x\n", OWL_X4(addr_sp, id, addr));
+	//0x4120266c
+	//0x7ffa066c
+	//0x41200000
+	//0x7ff9e000
+	//owl_test_mem();
+	//relocate_code(addr_sp, id, _TEXT_BASE); //!!!!!!!!
 	relocate_code(addr_sp, id, addr);
 #endif
 
+	//printf("OWL X5-3\n");
+	for(;;);
 	/* NOTREACHED - relocate_code() does not return */
 }
 
@@ -496,6 +556,15 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	bd = gd->bd;
 
 	gd = id;
+
+	printf("relocated board_init_r !!! OK !!!\n");
+	//reset_cpu(0);	for(;;); //!!!
+
+	//0x4120266c
+	//0x7ffa066c
+	//0x41200000
+	//0x7ff9e000
+	//owl_test_mem();
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_R, "board_init_r");
@@ -680,8 +749,8 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	}
 #endif
 
-	all_led_off();
-	power_led_on();
+	//all_led_off();
+	//power_led_on();
 
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */

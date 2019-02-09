@@ -24,8 +24,8 @@
 include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libi2c.o
-CPPFLAGS += -I$(TOPDIR)/board/qcom/ipq40xx_cdp -I$(TOPDIR)/board/qcom/common
-CFLAGS += -I$(TOPDIR)/board/qcom/ipq40xx_cdp -I$(TOPDIR)/board/qcom/common
+CPPFLAGS += -I$(TOPDIR)/board/qcom/ipq806x_cdp -I$(TOPDIR)/board/qcom/common
+CFLAGS += -I$(TOPDIR)/board/qcom/ipq806x_cdp -I$(TOPDIR)/board/qcom/common
 
 COBJS-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
 COBJS-$(CONFIG_DRIVER_DAVINCI_I2C) += davinci_i2c.o

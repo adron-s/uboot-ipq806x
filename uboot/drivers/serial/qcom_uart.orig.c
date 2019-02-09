@@ -41,18 +41,11 @@
 
 #define FIFO_DATA_SIZE	4
 
-void reset_cpu(ulong addr);
 #if defined CONFIG_IPQ806X
 extern board_ipq806x_params_t *gboard_param;
 #elif defined CONFIG_IPQ40XX
 extern board_ipq40xx_params_t *gboard_param;
 #endif
-uart_cfg_t *gboard_param_get_console_uart_cfg(void){
-	if(!gboard_param){
-		reset_cpu(0);	for(;;);
-	}
-	return &gboard_param->uart_cfg;
-}
 
 static unsigned int msm_boot_uart_dm_init(unsigned int  uart_dm_base);
 
@@ -355,14 +348,14 @@ static void configure_uart_dm(unsigned int uart_index,
 #ifdef CONFIG_IPQ806X
 	ipq_configure_gpio(uart_cfg->dbg_uart_gpio, NO_OF_DBG_UART_GPIOS);
 
-	/*uart_clock_config(uart_cfg->gsbi_base,
+	/*uart_clock_config(uart_cfg->base,
 			uart_cfg->uart_mnd_value.m_value,
 			uart_cfg->uart_mnd_value.n_value,
 			uart_cfg->uart_mnd_value.d_value,
-			gboard_param->clk_dummy); */
+			gboard_param->clk_dummy);
 	writel(GSBI_PROTOCOL_CODE_I2C_UART <<
 			GSBI_CTRL_REG_PROTOCOL_CODE_S,
-			GSBI_CTRL_REG(uart_cfg->gsbi_base));
+			GSBI_CTRL_REG(uart_cfg->gsbi_base)); */
 #elif defined CONFIG_IPQ40XX
 	qca_configure_gpio(uart_cfg->dbg_uart_gpio, NO_OF_DBG_UART_GPIOS);
 	/* Enable Clocks for UART2. UART1 clocks are initialized
@@ -387,15 +380,15 @@ static void configure_uart_dm(unsigned int uart_index,
  */
 static void uart_dm_init(void)
 {
-	uart_cfg_t *console_uart_cfg = gboard_param_get_console_uart_cfg();
-	//uart_cfg_t *uart_cfg = gboard_param->uart_cfg;
+	uart_cfg_t *console_uart_cfg = gboard_param->console_uart_cfg;
+	uart_cfg_t *uart_cfg = gboard_param->uart_cfg;
 
 	/* Configure console  UART */
 	configure_uart_dm(1, console_uart_cfg);
 
 	/* Configure Additional  UARTs */
-	//if (uart_cfg)
-		//configure_uart_dm(2, uart_cfg);
+	if (uart_cfg)
+		configure_uart_dm(2, uart_cfg);
 }
 
 /**
@@ -404,7 +397,7 @@ static void uart_dm_init(void)
  */
 void serial_putc(char c)
 {
-	uart_cfg_t *uart_tmp_cfg = gboard_param_get_console_uart_cfg();
+	uart_cfg_t *uart_tmp_cfg = gboard_param->console_uart_cfg;
 
         msm_boot_uart_dm_write(&c, 1, uart_tmp_cfg);
 }
@@ -426,7 +419,7 @@ void serial_puts(const char *s)
  */
 int serial_tstc(void)
 {
-	uart_cfg_t *uart_tmp_cfg = gboard_param_get_console_uart_cfg();
+	uart_cfg_t *uart_tmp_cfg = gboard_param->console_uart_cfg;
 	/* Return if data is already read */
 	if (valid_data)
 		return 1;
@@ -477,6 +470,30 @@ int  serial_init(void)
         return 0;
 }
 
+/**
+ * do_uartwr - transmits a string of data
+ * @s: string to transmit
+ */
+static int do_uartwr(cmd_tbl_t *cmdtp, int flag,
+			int argc, char * const argv[])
+{
+	char *s = argv[1];
+	uart_cfg_t *uart_tmp_cfg = gboard_param->uart_cfg;
+
+	if (argc < 2)
+		goto usage;
+
+	if (uart_tmp_cfg) {
+		while (*s != '\0')
+			msm_boot_uart_dm_write(s++, 1, uart_tmp_cfg);
+	} else {
+		printf("Second UART not present \n");
+	}
+	return 0;
+usage:
+	return CMD_RET_USAGE;
+}
+
 static int uart_serial_tstc(uart_cfg_t *uart_tmp_cfg)
 {
 	/* Return if data is already read */
@@ -491,4 +508,44 @@ static int uart_serial_tstc(uart_cfg_t *uart_tmp_cfg)
 	return 1;
 }
 
+static int do_uartrd(cmd_tbl_t *cmdtp, int flag,
+			int argc, char * const argv[])
+{
+	int byte;
+	uart_cfg_t *uart_tmp_cfg = gboard_param->uart_cfg;
 
+	if (argc > 1)
+		goto usage;
+
+	if (uart_tmp_cfg) {
+		for (;;) {
+			while (!uart_serial_tstc(uart_tmp_cfg)) {
+				/* wait for incoming data */
+			}
+			byte = (int)uart_word & 0xff;
+			switch (byte) {
+			case 0x03:
+				uart_word = uart_word >> 8;
+				uart_valid_data--;
+				return (-1);
+			default:
+				serial_putc(byte);
+			}
+			uart_word = uart_word >> 8;
+			uart_valid_data--;
+		}
+	} else {
+		printf("Second UART not present \n");
+	}
+	return 0;
+usage:
+	return CMD_RET_USAGE;
+}
+
+U_BOOT_CMD(uartwr, 2, 1, do_uartwr,
+	   "uartwr to second UART",
+	   "uartwr - write strings to uart\n");
+
+U_BOOT_CMD(uartrd, 1, 1, do_uartrd,
+	   "uartrd read from second UART",
+	   "uartrd - read strings from uart\n");

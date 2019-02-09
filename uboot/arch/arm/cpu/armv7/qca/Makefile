@@ -3,8 +3,8 @@ include $(TOPDIR)/config.mk
 
 SOBJS-y = timer.o gpio.o clock.o scm.o smem.o
 
-CPPFLAGS += -I$(TOPDIR)/board/qcom/ipq40xx_cdp -I$(TOPDIR)/board/qcom/common
-CFLAGS += -I$(TOPDIR)/board/qcom/ipq40xx_cdp -I$(TOPDIR)/board/qcom/common
+CPPFLAGS += -I$(TOPDIR)/board/qcom/ipq806x_cdp -I$(TOPDIR)/board/qcom/common
+CFLAGS += -I$(TOPDIR)/board/qcom/ipq806x_cdp -I$(TOPDIR)/board/qcom/common
 LIB	=  $(obj)lib$(SOC).o
 
 COBJS-y += cmd_bootqca.o

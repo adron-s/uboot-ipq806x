@@ -216,7 +216,7 @@ uchar *NetTxPacket;
 unsigned char *webfailsafe_data_pointer = NULL;
 int	webfailsafe_is_running = 0;
 int	webfailsafe_ready_for_upgrade = 0;
-int	webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE;
+//int	webfailsafe_upgrade_type = WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE;
 uchar          *NetArpWaitTxPacket;	/* THE transmit packet			*/
 uchar 		NetArpWaitPacketBuf[PKTSIZE_ALIGN + PKTALIGN];
 extern IPaddr_t	NetArpWaitReplyIP;

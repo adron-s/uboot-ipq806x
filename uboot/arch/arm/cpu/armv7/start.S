@@ -166,6 +166,60 @@ call_board_init_f:
 
 /*------------------------------------------------------------------------------*/
 
+ENTRY(OWL_X1)
+	/* adr	r0, _start */
+	ldr	r0, _image_copy_end_ofs
+	mov	pc, lr			@ back to my caller
+ENDPROC(OWL_X1)
+
+ENTRY(OWL_X2)
+	adr	r0, _start
+	mov	pc, lr			@ back to my caller
+ENDPROC(OWL_X2)
+
+ENTRY(OWL_X13)
+	@ mov	r6, r0	/* save addr of destination */
+	ldr	r0, _bss_start_ofs
+	mov	pc, lr			@ back to my caller
+ENDPROC(OWL_X13)
+
+ENTRY(OWL_X14)
+	@ mov	r6, r0	/* save addr of destination */
+	ldr	r0, _bss_end_ofs
+	mov	pc, lr			@ back to my caller
+ENDPROC(OWL_X14)
+
+ENTRY(OWL_X10)
+	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
+	ldr	r10, _dynsym_start_ofs	/* r10 <- sym table ofs */
+	add	r10, r10, r0		/* r10 <- sym table in FLASH */
+	mov r0, r10
+	mov	pc, lr			@ back to my caller
+ENDPROC(OWL_X10)
+
+ENTRY(OWL_X11)
+	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
+	ldr	r2, _rel_dyn_start_ofs	/* r2 <- rel dyn start ofs */
+	add	r2, r2, r0		/* r2 <- rel dyn start in FLASH */
+	mov r0, r2
+	mov	pc, lr			@ back to my caller
+ENDPROC(OWL_X11)
+
+ENTRY(OWL_X12)
+	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
+	ldr	r3, _rel_dyn_end_ofs	/* r3 <- rel dyn end ofs */
+	add	r3, r3, r0		/* r3 <- rel dyn end in FLASH */
+	mov r0, r3
+	mov	pc, lr			@ back to my caller
+ENDPROC(OWL_X12)
+
+ENTRY(OWL_X4)
+	mov	r4, r0	/* save addr_sp */
+	mov	r5, r1	/* save addr of gd */
+	mov	r6, r2	/* save addr of destination */
+	mov	pc, lr			@ back to my caller !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ENDPROC(OWL_X4)
+
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -188,7 +242,8 @@ stack_setup:
 #ifndef CONFIG_IPQ40XX_XIP
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
-	ldr	r3, _image_copy_end_ofs
+	@ ldr	r3, _image_copy_end_ofs
+	ldr	r3, _bss_end_ofs @ !!! copy MORE _image + bss(some important static variables!) !!!
 	add	r2, r0, r3		/* r2 <- source end address	    */
 
 copy_loop:
@@ -255,6 +310,9 @@ clear_bss:
 #else
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
+	sub r1, r1, #128 @ skip last 128 bytes(important static variables?)
+	@ sub r1, r1, #2048
+	@ sub r1, r1, #1600
 	mov	r4, r6			/* reloc addr */
 	add	r0, r0, r4
 	add	r1, r1, r4
@@ -295,6 +353,11 @@ jump_2_ram:
 
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
+
+	@ add	r0, r0, r1  @ !!!!!!!!!!!!!!!!!!!!!!
+	@ add	r0, r0, r9  @ !!!!!!!!!!!!!!!!!!!!!!
+	@ mov	pc, lr			@ back to my caller !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 	add	lr, r0, r1
 	add	lr, lr, r9
 	/* setup parameters for board_init_r */

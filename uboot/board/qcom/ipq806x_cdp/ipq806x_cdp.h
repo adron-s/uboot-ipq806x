@@ -123,6 +123,13 @@ typedef struct {
 	int 				linkup;
 } pcie_params_t;
 
+typedef struct {
+	unsigned int uart_dm_base;
+	gpio_func_data_t *dbg_uart_gpio;
+	unsigned int gsbi_base;
+	clk_mnd_t uart_mnd_value;
+} uart_cfg_t;
+
 void board_pci_init(void);
 #endif /* CONFIG_IPQ806X_PCI */
 
@@ -157,6 +164,7 @@ typedef struct {
 	gpio_func_data_t *emmc_gpio;
 	unsigned int emmc_gpio_count;
 #endif
+	uart_cfg_t uart_cfg;
 
 } __attribute__ ((__packed__)) board_ipq806x_params_t;
 

@@ -118,13 +118,25 @@ I/P : None
 O/P : integer, 0 - no error.
 
 ********************************************************/
+static void uart_cfg_preinit(board_ipq806x_params_t *p){
+	uart_cfg_t *uart_cfg = &p->uart_cfg;
+	uart_cfg->uart_dm_base = p->uart_dm_base;
+	uart_cfg->dbg_uart_gpio = p->dbg_uart_gpio;
+	uart_cfg->gsbi_base = p->uart_gsbi_base;
+	uart_cfg->uart_mnd_value = p->uart_mnd_value;
+}
+void reset_cpu(ulong addr);
 static board_ipq806x_params_t *get_board_param(unsigned int machid)
 {
 	unsigned int index = 0;
-
+	//reset_cpu(0);	for(;;); //!!!
+	//machid = MACH_TYPE_IPQ806X_AP148; //!!!!
+	machid = MACH_TYPE_IPQ806X_STORM; //!!!!
 	for (index = 0; index < NUM_IPQ806X_BOARDS; index++) {
-		if (machid == board_params[index].machid)
+		if (machid == board_params[index].machid){
+			uart_cfg_preinit(&board_params[index]);
 			return &board_params[index];
+		}
 	}
 	BUG_ON(index == NUM_IPQ806X_BOARDS);
 	printf("cdp: Invalid machine id 0x%x\n", machid);
@@ -193,7 +205,6 @@ int board_init()
 	gd->bd->bi_boot_params = IPQ_BOOT_PARAMS_ADDR;
 	gd->bd->bi_arch_number = smem_get_board_machtype();
 	gboard_param = get_board_param(gd->bd->bi_arch_number);
-
 
 	ret = smem_get_boot_flash(&sfi->flash_type,
 				  &sfi->flash_index,
@@ -406,24 +417,24 @@ void reset_cpu(ulong addr)
 static void configure_nand_gpio(void)
 {
 	/* EBI2 CS, CLE, ALE, WE, OE */
-	gpio_tlmm_config(34, 1, 0, GPIO_NO_PULL, GPIO_10MA, GPIO_OE_ENABLE);
+/*	gpio_tlmm_config(34, 1, 0, GPIO_NO_PULL, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(35, 1, 0, GPIO_NO_PULL, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(36, 1, 0, GPIO_NO_PULL, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(37, 1, 0, GPIO_NO_PULL, GPIO_10MA, GPIO_OE_ENABLE);
-	gpio_tlmm_config(38, 1, 0, GPIO_NO_PULL, GPIO_10MA, GPIO_OE_ENABLE);
+	gpio_tlmm_config(38, 1, 0, GPIO_NO_PULL, GPIO_10MA, GPIO_OE_ENABLE); */
 
 	/* EBI2 BUSY */
-	gpio_tlmm_config(39, 1, 0, GPIO_PULL_UP, GPIO_10MA, GPIO_OE_ENABLE);
+	//gpio_tlmm_config(39, 1, 0, GPIO_PULL_UP, GPIO_10MA, GPIO_OE_ENABLE);
 
 	/* EBI2 D7 - D0 */
-	gpio_tlmm_config(40, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
+	/*gpio_tlmm_config(40, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(41, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(42, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(43, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(44, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(45, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
 	gpio_tlmm_config(46, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
-	gpio_tlmm_config(47, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE);
+	gpio_tlmm_config(47, 1, 0, GPIO_KEEPER, GPIO_10MA, GPIO_OE_ENABLE); */
 }
 
 void board_nand_init(void)
@@ -446,7 +457,7 @@ void board_nand_init(void)
 		ipq_nand_init(IPQ_NAND_LAYOUT_LINUX, QCOM_NAND_IPQ);
 	}
 
-	ipq_spi_init();
+	//ipq_spi_init();
 }
 
 void ipq_get_part_details(void)
@@ -514,7 +525,7 @@ int board_late_init(void)
 int board_early_init_f(void)
 {
 	gboard_param = get_board_param(smem_get_board_machtype());
-
+	//reset_cpu(0);	for(;;); //!!!
 	return 0;
 }
 

@@ -87,9 +87,9 @@
 
 void gpio_tlmm_config(unsigned int gpio, unsigned int func,
 		unsigned int out, unsigned int pull,
-		unsigned int drvstr, unsigned int oe,
-		unsigned int gpio_vm, unsigned int gpio_od_en,
-		unsigned int gpio_pu_res);
+		unsigned int drvstr, unsigned int oe);
+//	unsigned int gpio_vm, unsigned int gpio_od_en,
+//	unsigned int gpio_pu_res);
 
 void gpio_set_value(unsigned int gpio, unsigned int out);
 
